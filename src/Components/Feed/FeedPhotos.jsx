@@ -1,0 +1,47 @@
+import FeedPhotosItem from './FeedPhotosItem'
+import useFetch from '../../Hooks/useFetch'
+import { useEffect } from 'react'
+import { PHOTOS_GET } from '../../Api'
+import Error from '../Helper/Error'
+import Loading from '../Helper/Loading'
+import styles from './FeedPhotos.module.css'
+
+const FeedPhotos = ({ setModalPhoto }) => {
+  const { data, loading, error, request } = useFetch()
+
+  useEffect(() => {
+    async function fetchPhotos() {
+      const { url, options } = PHOTOS_GET({
+        page: 1,
+        total: 6,
+        user: 0,
+      })
+
+      const { response, json } = await request(url, options)
+    }
+
+    fetchPhotos()
+  }, [request])
+
+  if (loading) {
+    return <Loading />
+  }
+
+  if (!error && data) {
+    return (
+      <ul className={'animeLeft ' + styles.feed}>
+        {data.map((photo) => (
+          <FeedPhotosItem
+            photo={photo}
+            key={photo.id}
+            setModalPhoto={setModalPhoto}
+          />
+        ))}
+      </ul>
+    )
+  }
+
+  return <Error error={error} />
+}
+
+export default FeedPhotos
